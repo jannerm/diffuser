@@ -35,11 +35,11 @@ if __name__ == "__main__":
     buffers = ['medium-expert-v2']
     datasets = [f'{env}-{buf}' for env in environments for buf in buffers]
 
-    azure_logpath = 'azure'
+    azure_logpath = 'pretrained'
 
     params_to_sweep = {
         'dataset': datasets,
-        'horizon': [32, 128, 256, 512],
+        'horizon': [128, 256, 512],
         'n_diffusion_steps': [100],
         'bucket': [None],
     }

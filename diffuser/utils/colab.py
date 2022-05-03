@@ -3,10 +3,13 @@ import numpy as np
 import einops
 from tqdm import tqdm
 
-import io
-import base64
-from IPython.display import HTML
-from IPython import display as ipythondisplay
+try:
+    import io
+    import base64
+    from IPython.display import HTML
+    from IPython import display as ipythondisplay
+except:
+    print('[ utils/colab ] Warning: not importing colab dependencies')
 
 from .serialization import mkdir
 from .arrays import to_torch, to_np

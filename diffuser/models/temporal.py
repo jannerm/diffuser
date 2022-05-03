@@ -27,27 +27,17 @@ class ResidualTemporalBlock(nn.Module):
             Rearrange('batch t -> batch t 1'),
         )
 
-        self.cond_mlp = nn.Sequential(
-            nn.Mish(),
-            nn.Linear(embed_dim, horizon * 4),
-            nn.Mish(),
-            nn.Linear(horizon * 4, horizon),
-            Rearrange('batch h -> batch 1 h'),
-        )
-
         self.residual_conv = nn.Conv1d(inp_channels, out_channels, 1) \
             if inp_channels != out_channels else nn.Identity()
 
-    def forward(self, x, t, cond):
+    def forward(self, x, t):
         '''
             x : [ batch_size x inp_channels x horizon ]
             t : [ batch_size x embed_dim ]
-            cond : [ batch_size x embed_dim ]
-
             returns:
             out : [ batch_size x out_channels x horizon ]
         '''
-        out = self.blocks[0](x) + self.time_mlp(t) + self.cond_mlp(cond)
+        out = self.blocks[0](x) + self.time_mlp(t)
         out = self.blocks[1](out)
         return out + self.residual_conv(x)
 
@@ -75,18 +65,11 @@ class TemporalUnet(nn.Module):
             nn.Linear(dim * 4, dim),
         )
 
-        self.cond_mlp = nn.Sequential(
-            nn.Linear(cond_dim, dim * 4),
-            nn.Mish(),
-            nn.Linear(dim * 4, dim * 4),
-            nn.Mish(),
-            nn.Linear(dim * 4, dim),
-        )
-
         self.downs = nn.ModuleList([])
         self.ups = nn.ModuleList([])
         num_resolutions = len(in_out)
 
+        print(in_out)
         for ind, (dim_in, dim_out) in enumerate(in_out):
             is_last = ind >= (num_resolutions - 1)
 
@@ -128,23 +111,21 @@ class TemporalUnet(nn.Module):
         x = einops.rearrange(x, 'b h t -> b t h')
 
         t = self.time_mlp(time)
-        cond = self.cond_mlp(cond[0])
-
         h = []
 
         for resnet, resnet2, downsample in self.downs:
-            x = resnet(x, t, cond)
-            x = resnet2(x, t, cond)
+            x = resnet(x, t)
+            x = resnet2(x, t)
             h.append(x)
             x = downsample(x)
 
-        x = self.mid_block1(x, t, cond)
-        x = self.mid_block2(x, t, cond)
+        x = self.mid_block1(x, t)
+        x = self.mid_block2(x, t)
 
         for resnet, resnet2, upsample in self.ups:
             x = torch.cat((x, h.pop()), dim=1)
-            x = resnet(x, t, cond)
-            x = resnet2(x, t, cond)
+            x = resnet(x, t)
+            x = resnet2(x, t)
             x = upsample(x)
 
         x = self.final_conv(x)

@@ -6,7 +6,7 @@ Guided sampling code to come soon!
 
 ## Quickstart
 
-Load a pretrained diffusion model and sample from it in your browser with [scripts/diffuser-sample.ipynb](scripts/diffuser-sample.ipynb).
+Load a pretrained diffusion model and sample from it in your browser with [scripts/diffuser-sample.ipynb](scripts/diffuser_sample.ipynb).
 
 
 ## Installation

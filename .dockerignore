@@ -1,0 +1,7 @@
+*.ipynb_checkpoints
+*__pycache__*
+*.egg-info
+logs/*
+*.img
+*.simg
+wandb

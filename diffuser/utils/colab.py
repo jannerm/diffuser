@@ -13,7 +13,7 @@ from .arrays import to_torch, to_np
 from .video import save_video
 
 
-def run_diffusion(model, dataset, obs, n_samples=1, device='cuda:0'):
+def run_diffusion(model, dataset, obs, n_samples=1, device='cuda:0', **diffusion_kwargs):
   ## normalize observation for model
   obs = dataset.normalizer.normalize(obs, 'observations')
 
@@ -26,7 +26,8 @@ def run_diffusion(model, dataset, obs, n_samples=1, device='cuda:0'):
     0: to_torch(obs, device=device)
   }
 
-  samples, diffusion = model.conditional_sample(conditions, return_diffusion=True, verbose=False)
+  samples, diffusion = model.conditional_sample(conditions,
+        return_diffusion=True, verbose=False, **diffusion_kwargs)
 
   ## [ n_samples x (n_diffusion_steps + 1) x horizon x (action_dim + observation_dim)]
   diffusion = to_np(diffusion)

@@ -86,10 +86,10 @@ To unmount the container, run `sudo umount -f ~/azure_mount; rm -r ~/azure_mount
 
 ## Reference
 ```
-@article{janner2021diffuser,
+@inproceedings{janner2022diffuser,
   title = {Planning with Diffusion for Flexible Behavior Synthesis},
   author = {Michael Janner and Yilun Du and Joshua B. Tenenbaum and Sergey Levine},
-  journal = {arXiv preprint arXiv:2205.xxxxx},
+  booktitle = {International Conference on Machine Learning},
   year = {2022},
 }
 ```

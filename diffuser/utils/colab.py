@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import einops
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 try:
@@ -51,7 +52,7 @@ def run_diffusion(model, dataset, obs, n_samples=1, device='cuda:0', **diffusion
 
 def show_diffusion(renderer, observations, n_repeat=100, substep=1, filename='diffusion.mp4', savebase='/content/videos'):
     '''
-    observations : [ n_diffusion_steps x batch_size x horizon x observation_dim ]
+        observations : [ n_diffusion_steps x batch_size x horizon x observation_dim ]
     '''
     mkdir(savebase)
     savepath = os.path.join(savebase, filename)
@@ -78,7 +79,7 @@ def show_diffusion(renderer, observations, n_repeat=100, substep=1, filename='di
 
 def show_sample(renderer, observations, filename='sample.mp4', savebase='/content/videos'):
     '''
-    observations : [ batch_size x horizon x observation_dim ]
+        observations : [ batch_size x horizon x observation_dim ]
     '''
 
     mkdir(savebase)
@@ -95,6 +96,23 @@ def show_sample(renderer, observations, filename='sample.mp4', savebase='/conten
     
     save_video(savepath, images)
     show_video(savepath, height=200)
+
+
+def show_samples(renderer, observations_l, figsize=12):
+    '''
+      observations_l : [ [ n_diffusion_steps x batch_size x horizon x observation_dim ], ... ]
+    '''
+
+    images = []
+    for observations in observations_l:
+      path = observations[-1]
+      img = renderer.composite(None, path)
+      images.append(img)
+    images = np.concatenate(images, axis=0)
+
+    plt.imshow(images)
+    plt.axis('off')
+    plt.gcf().set_size_inches(figsize, figsize)
 
 
 def show_video(path, height=400):

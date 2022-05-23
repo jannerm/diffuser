@@ -165,7 +165,7 @@ class LimitsNormalizer(Normalizer):
             x : [ -1, 1 ]
         '''
         if x.max() > 1 + eps or x.min() < -1 - eps:
-            print(f'[ datasets/mujoco ] Warning: sample out of range | ({x.min():.4f}, {x.max():.4f})')
+            # print(f'[ datasets/mujoco ] Warning: sample out of range | ({x.min():.4f}, {x.max():.4f})')
             x = np.clip(x, -1, 1)
 
         ## [ -1, 1 ] --> [ 0, 1 ]

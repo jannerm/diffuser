@@ -5,7 +5,7 @@ Training and visualizing of diffusion models from [Planning with Diffusion for F
 Guided sampling code to come soon!
 
 <p align="center">
-    <img src="https://diffusion-planning.github.io/images/diffuser-card.png" width="55%" title="Diffuser model">
+    <img src="https://diffusion-planning.github.io/images/diffuser-card.png" width="60%" title="Diffuser model">
 </p>
 
 ## Quickstart

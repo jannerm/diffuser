@@ -4,9 +4,13 @@
 Training and visualizing of diffusion models from [Planning with Diffusion for Flexible Behavior Synthesis](https://diffusion-planning.github.io/).
 Guided sampling code to come soon!
 
+<p align="center">
+    <img src="https://diffusion-planning.github.io/images/diffuser-card.png" width="60%" title="Diffuser model">
+</p>
+
 ## Quickstart
 
-Load a pretrained diffusion model and sample from it in your browser with [scripts/diffuser-sample.ipynb](scripts/diffuser_sample.ipynb).
+Load a pretrained diffusion model and sample from it in your browser with [scripts/diffuser-sample.ipynb](https://colab.research.google.com/drive/1YajKhu-CUIGBJeQPehjVPJcK_b38a8Nc?usp=sharing).
 
 
 ## Installation
@@ -86,10 +90,10 @@ To unmount the container, run `sudo umount -f ~/azure_mount; rm -r ~/azure_mount
 
 ## Reference
 ```
-@article{janner2021diffuser,
+@inproceedings{janner2022diffuser,
   title = {Planning with Diffusion for Flexible Behavior Synthesis},
   author = {Michael Janner and Yilun Du and Joshua B. Tenenbaum and Sergey Levine},
-  journal = {arXiv preprint arXiv:2205.xxxxx},
+  booktitle = {International Conference on Machine Learning},
   year = {2022},
 }
 ```

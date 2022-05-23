@@ -4,6 +4,10 @@
 Training and visualizing of diffusion models from [Planning with Diffusion for Flexible Behavior Synthesis](https://diffusion-planning.github.io/).
 Guided sampling code to come soon!
 
+<p align="center">
+    <img src="[your_relative_path_here](https://diffusion-planning.github.io/images/diffuser-card.png)" width="70%" title="Diffuser model">
+</p>
+
 ## Quickstart
 
 Load a pretrained diffusion model and sample from it in your browser with [scripts/diffuser-sample.ipynb](https://colab.research.google.com/drive/1YajKhu-CUIGBJeQPehjVPJcK_b38a8Nc?usp=sharing).

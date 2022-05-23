@@ -31,7 +31,7 @@ def remote_fn(doodad_config, variant):
 
 if __name__ == "__main__":
 
-    environments = ['hopper']
+    environments = ['walker2d']
     buffers = ['medium-expert-v2']
     datasets = [f'{env}-{buf}' for env in environments for buf in buffers]
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     params_to_sweep = {
         'dataset': datasets,
-        'horizon': [128, 256, 512],
+        'horizon': [128, 512],
         'n_diffusion_steps': [100],
         'bucket': [None],
     }

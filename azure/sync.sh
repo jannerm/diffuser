@@ -7,8 +7,8 @@ else
 	./bin/azcopy login --tenant-id=$AZURE_TENANT_ID
 fi
 
-export LOCAL_LOGBASE=logs/azure/
-export LOGBASE=logs/azure/
+export LOCAL_LOGBASE=logs/pretrained/
+export LOGBASE=logs/pretrained/
 export AZURE_STORAGE_CONTAINER="diffuser-pretrained"
 
 ## AZURE_STORAGE_CONNECTION_STRING has a substring formatted lik:

@@ -25,7 +25,7 @@ pip install -e .
 
 Train a diffusion model with:
 ```
-python scripts/plan_guided.py --dataset hopper-medium-replay-v2 \
+python scripts/train.py --dataset hopper-medium-replay-v2 \
     --horizon 512 --n_diffusion_steps 200
 ```
 

@@ -82,7 +82,7 @@ RUN conda update -y --name base conda && conda clean --all -y
 
 RUN git config --global url."https://".insteadOf git://
 RUN conda env create -f /opt/environment.yml
-ENV PATH /opt/conda/envs/diffusion/bin:$PATH
+ENV PATH /opt/conda/envs/diffuser/bin:$PATH
 
 ##########################################################
 ### gym sometimes has this patchelf issue
@@ -91,5 +91,5 @@ RUN curl -o /usr/local/bin/patchelf https://s3-us-west-2.amazonaws.com/openai-sc
     && chmod +x /usr/local/bin/patchelf
 # RUN pip install gym[all]==0.12.5
 
-RUN echo "source activate /opt/conda/envs/diffusion && export PYTHONPATH=$PYTHONPATH:/home/code && export CUDA_VISIBLE_DEVICES=0" >> ~/.bashrc
+RUN echo "source activate /opt/conda/envs/diffuser && export PYTHONPATH=$PYTHONPATH:/home/code && export CUDA_VISIBLE_DEVICES=0" >> ~/.bashrc
 RUN source ~/.bashrc

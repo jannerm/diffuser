@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot name="stove">
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.025" rpy="0 0 0" />
+      <geometry>
+        <box size="0.25 0.25 0.05" />
+      </geometry>
+      <material name="red">
+        <color rgba="1 0 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.025" rpy="0 0 0" />
+      <geometry>
+        <box size="0.25 0.25 0.05" />
+      </geometry>
+    </collision>
+  </link>
+</robot>

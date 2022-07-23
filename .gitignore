@@ -1,0 +1,9 @@
+*~
+*.npy
+*.swp
+*.swo
+__pycache__/
+logs/
+kuka_dataset/
+*.pkl
+*.tar.gz

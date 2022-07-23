@@ -1,0 +1,267 @@
+<?xml version="1.0"?>
+<robot name="wsg_50"
+
+       xmlns:xi="http://www.w3.org/2001/XInclude"
+       xmlns:gazebo="http://playerstage.sourceforge.net/gazebo/xmlschema/#gz"
+       xmlns:model="http://playerstage.sourceforge.net/gazebo/xmlschema/#model"
+       xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:body="http://playerstage.sourceforge.net/gazebo/xmlschema/#body"
+       xmlns:geom="http://playerstage.sourceforge.net/gazebo/xmlschema/#geom"
+       xmlns:joint="http://playerstage.sourceforge.net/gazebo/xmlschema/#joint"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:rendering="http://playerstage.sourceforge.net/gazebo/xmlschema/#rendering"
+       xmlns:renderable="http://playerstage.sourceforge.net/gazebo/xmlschema/#renderable"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:physics="http://playerstage.sourceforge.net/gazebo/xmlschema/#physics">
+
+ <!-- BASE LINK -->
+ <link name="base_link">
+      <inertial>
+          <mass value="1.2" />
+          <origin xyz="0 0 0" />
+     	  <!--inertia ixx="1.0" ixy="0.0" ixz="0.0"
+               iyy="100.0" iyz="0.0"
+               izz="1.0" /-->
+      	  <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="1.0"  iyz="0.0"  izz="1.0" />
+      </inertial>
+
+      <visual>
+          <origin xyz="0.0 0 0" rpy="0 0 0" />
+          <geometry>
+             <mesh filename="package://wsg_50_description/meshes/WSG50_110.stl" scale="1 1 1"/>
+	     <!--box size="0.146 0.05 0.0735"/-->
+          </geometry>
+          <material name="grey">
+		<color rgba="0.5 0.5 0.5 1"/>
+      	  </material>
+      </visual>
+
+      <collision>
+          <origin xyz="0.0 0 0" rpy="0 0 0" />
+          <geometry>
+	     <!--box size="0.146 0.05 0.0735"/-->
+             <mesh filename="package://wsg_50_description/meshes/WSG50_110.stl" scale="1 1 1"/>
+         </geometry>
+     </collision>
+  </link>
+
+  <gazebo reference="base_link">
+    <material>Gazebo/Grey</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+  <!-- GRIPPER LEFT -->
+
+  <joint name="base_joint_gripper_left" type="prismatic">
+     <limit lower="-0.055" upper="-0.0027" effort="1.0" velocity="1.0"/>
+     <origin xyz="0 0 0" rpy="0 0 0" />      <!--origin xyz="-0.0067 0 0.049" rpy="0 0 0" /-->
+     <parent link="base_link"/>
+     <child link="gripper_left" />
+     <dynamics friction="100" damping="100" />
+     <axis xyz="1 0 0"/>
+     <limit effort="100" velocity="100"/>
+  </joint>
+
+  <transmission name="base_trans_left" type="pr2_mechanism_model/SimpleTransmission">
+     <actuator name="base_motor_left" />
+     <joint name="base_joint_gripper_left" />
+     <mechanicalReduction>1</mechanicalReduction>
+     <motorTorqueConstant>1</motorTorqueConstant>
+  </transmission>
+
+  <link name="gripper_left">
+      <inertial>
+          <mass value="0.1" />
+          <origin xyz="0 0 0" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0"
+               iyy="1.0" iyz="0.0"
+               izz="1.0" />
+      </inertial>
+
+      <visual>
+          <origin xyz="0.0 0 0" rpy="0 0 0" />
+          <geometry>
+             <mesh filename="package://wsg_50_description/meshes/GUIDE_WSG50_110.stl" scale="0.001 0.001 0.001"/>
+	     <!--box size="0.0175 0.03 0.024"/-->
+          </geometry>
+          <material name="black">
+		<color rgba="0 0 0 0"/>
+      	  </material>
+      </visual>
+
+      <collision>
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+	     <!--box size="0.0175 0.03 0.024"/-->
+             <mesh filename="package://wsg_50_description/meshes/GUIDE_WSG50_110.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+     </collision>
+  </link>
+
+  <gazebo reference="gripper_left">
+    <material>Gazebo/Blue</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+
+  <!-- LEFT FINGER -->
+
+  <joint name="guide_joint_finger_left" type="fixed">
+     <origin xyz="0 0 0.023" rpy="0 0 0" />
+     <parent link="gripper_left"/>
+     <child link="finger_left" />
+     <dynamics friction="100" damping="100" />
+     <axis xyz="1 0 0"/>
+     <limit effort="100" velocity="100"/>
+  </joint>
+
+  <link name="finger_left">
+      <inertial>
+          <mass value="0.1" />
+          <origin xyz="0 0 0" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0"
+               iyy="1.0" iyz="0.0"
+               izz="1.0" />
+      </inertial>
+
+      <visual>
+          <origin xyz="0.0 0 0" rpy="0 0 0" />
+          <geometry>
+             <mesh filename="package://wsg_50_description/meshes/WSG-FMF.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="black">
+		<color rgba="0 0 0 0"/>
+      	  </material>
+      </visual>
+
+      <collision>
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+             <mesh filename="package://wsg_50_description/meshes/WSG-FMF.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+     </collision>
+  </link>
+
+  <gazebo reference="finger_left">
+    <material>Gazebo/Blue</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+
+  <!-- GRIPPER RIGHT -->
+
+  <joint name="base_joint_gripper_right" type="prismatic">
+     <limit lower="0.0027" upper="0.055" effort="1.0" velocity="1.0"/>
+     <origin xyz="0 0 0" rpy="0 0 3.14159" />
+     <parent link="base_link"/>
+     <child link="gripper_right" />
+     <axis xyz="-1 0 0"/>
+     <dynamics friction="100" damping="100" />
+     <limit effort="100" velocity="100"/>
+  </joint>
+
+  <transmission name="base_trans_right" type="pr2_mechanism_model/SimpleTransmission">
+     <actuator name="base_motor_right" />
+     <joint name="base_joint_gripper_right" />
+     <mechanicalReduction>1</mechanicalReduction>
+     <motorTorqueConstant>1</motorTorqueConstant>
+  </transmission>
+
+    <link name="gripper_right">
+      <inertial>
+          <mass value="0.1" />
+          <origin xyz="0 0 0" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0"
+               iyy="1.0" iyz="0.0"
+               izz="1.0" />
+      </inertial>
+
+      <visual>
+          <origin xyz="0.0 0 0" rpy="0 0 0" />
+          <geometry>
+             <mesh filename="package://wsg_50_description/meshes/GUIDE_WSG50_110.stl" scale="0.001 0.001 0.001"/>
+	     <!--box size="0.0175 0.03 0.024"/-->
+          </geometry>
+          <material name="black">
+		<color rgba="0 0 0 0"/>
+      	  </material>
+      </visual>
+
+      <collision>
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+	     <!--box size="0.0175 0.03 0.024"/-->
+             <mesh filename="package://wsg_50_description/meshes/GUIDE_WSG50_110.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+     </collision>
+  </link>
+
+  <gazebo reference="gripper_right">
+    <material>Gazebo/White</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+  <!-- RIGHT FINGER -->
+
+  <joint name="guide_joint_finger_right" type="fixed">
+     <origin xyz="0 0 0.023" rpy="0 0 0" />
+     <parent link="gripper_right"/>
+     <child link="finger_right" />
+     <dynamics friction="100" damping="100" />
+     <axis xyz="1 0 0"/>
+     <limit effort="100" velocity="100"/>
+  </joint>
+
+  <link name="finger_right">
+      <inertial>
+          <mass value="0.1" />
+          <origin xyz="0 0 0" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0"
+               iyy="1.0" iyz="0.0"
+               izz="1.0" />
+      </inertial>
+
+      <visual>
+          <origin xyz="0.0 0 0" rpy="0 0 0" />
+          <geometry>
+             <mesh filename="package://wsg_50_description/meshes/WSG-FMF.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="black">
+		<color rgba="0 0 0 0"/>
+      	  </material>
+      </visual>
+
+      <collision>
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+             <mesh filename="package://wsg_50_description/meshes/WSG-FMF.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+     </collision>
+  </link>
+
+  <gazebo reference="finger_right">
+    <material>Gazebo/White</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+  <!-- Gazebo controllers -->
+  <!--gazebo>
+     <controller:gazebo_ros_time name="gazebo_ros_time" plugin="libgazebo_ros_time.so">
+       <alwaysOn>true</alwaysOn>
+       <updateRate>1000.0</updateRate>
+       <interface:audio name="dummy_gazebo_ros_time_iface_should_not_be_here"/>
+     </controller:gazebo_ros_time-->
+
+  <!-- PR2_ACTARRAY -->
+  <gazebo>
+     <controller:gazebo_ros_controller_manager name="gazebo_ros_controller_manager" plugin="libgazebo_ros_controller_manager.so">
+       <alwaysOn>true</alwaysOn>
+       <updateRate>1000.0</updateRate>
+       <interface:audio name="gazebo_ros_controller_manager_dummy_iface" />
+     </controller:gazebo_ros_controller_manager>
+  </gazebo>
+
+
+</robot>
+
+

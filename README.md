@@ -2,7 +2,7 @@
 
 
 Training and visualizing of diffusion models from [Planning with Diffusion for Flexible Behavior Synthesis](https://diffusion-planning.github.io/).
-Guided sampling code to come soon!
+Guided sampling code to come soon! Code for robotic experiments can be found [here](https://github.com/jannerm/diffuser/tree/kuka).
 
 <p align="center">
     <img src="https://diffusion-planning.github.io/images/diffuser-card.png" width="60%" title="Diffuser model">

@@ -1,5 +1,3 @@
-<img src="./.github/assets/denoising-diffusion.png" width="500px"></img>
-
 ## Planning with Diffusion for Flexible Behavior Synthesis, in Pytorch
 
 This is the implementation of the robotics experiments for <a href="https://arxiv.org/abs/2205.09991">Planning with Diffusion for Flexible Behavior Synthesis</a> in Pytorch. 

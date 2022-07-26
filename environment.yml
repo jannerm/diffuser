@@ -14,7 +14,7 @@ dependencies:
     - matplotlib==3.3.4
     - torch==1.9.1+cu111
     - typed-argument-parser
-    - git+https://github.com/JannerM/d4rl.git@d5719e2c6ef6ab3b1c678a846c02621abb8074a4
+    - git+https://github.com/JannerM/d4rl.git@13fc08c198d17ac627f528aedc70843e8f86bb71
     - scikit-image==0.17.2
     - scikit-video==1.1.11
     - gitpython

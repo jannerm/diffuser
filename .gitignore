@@ -2,6 +2,7 @@
 *.npy
 *.swp
 *.swo
+*.swn
 __pycache__/
 logs/
 kuka_dataset/

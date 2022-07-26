@@ -2,11 +2,13 @@
 
 
 Training and visualizing of diffusion models from [Planning with Diffusion for Flexible Behavior Synthesis](https://diffusion-planning.github.io/).
-Guided sampling code to come soon! Code for robotic experiments can be found [here](https://github.com/jannerm/diffuser/tree/kuka).
 
 <p align="center">
     <img src="https://diffusion-planning.github.io/images/diffuser-card.png" width="60%" title="Diffuser model">
 </p>
+
+
+**Release status:** Diffusion model training and visualization has been merged into the [main branch](https://github.com/jannerm/diffuser/tree/main). Maze2d planning is currently in the [maze2d branch](https://github.com/jannerm/diffuser/tree/maze2d), but will be merged into main soon. Robotic block-stacking experiments are in the [kuka branch](https://github.com/jannerm/diffuser/tree/kuka). Classifier-guided sampling code will be cleaned up soon!
 
 ## Quickstart
 

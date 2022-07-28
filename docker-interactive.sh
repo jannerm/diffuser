@@ -1,0 +1,1 @@
+docker run -it --rm --gpus all --mount type=bind,source=$PWD,target=/home/code --mount type=bind,source=$PWD/logs,target=/logs/docker  --mount type=bind,source=$PWD/.d4rl,target=/root/.d4rl -p 1222:1222  diffuser 

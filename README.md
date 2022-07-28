@@ -46,11 +46,11 @@ docker build -f azure/Dockerfile . -t diffuser
 ```
 docker run -it --rm --gpus all \
     --mount type=bind,source=$PWD,target=/home/code \
+    --mount type=bind,source=$PWD/logs,target=/logs/docker \
     --mount type=bind,source=$HOME/.d4rl,target=/root/.d4rl \
     diffuser \
     bash -c \
-    "export PYTHONPATH=$PYTHONPATH:/home/code && \
-    python /home/code/scripts/train.py --dataset hopper-medium-expert-v2 --logbase logs/docker"
+    "python /home/code/scripts/train.py --dataset hopper-medium-expert-v2 --logbase logs/docker"
 ```
 
 

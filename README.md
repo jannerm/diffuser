@@ -2,7 +2,7 @@
 
 
 Training and visualizing of diffusion models from [Planning with Diffusion for Flexible Behavior Synthesis](https://diffusion-planning.github.io/).
-Guided sampling code to come soon!
+This branch has the Maze2D experiments and will be merged into main shortly.
 
 <p align="center">
     <img src="https://diffusion-planning.github.io/images/diffuser-card.png" width="60%" title="Diffuser model">

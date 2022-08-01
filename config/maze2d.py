@@ -22,11 +22,6 @@ plan_args_to_watch = [
     ('value_horizon', 'V'),
     ('discount', 'd'),
     ('normalizer', ''),
-    ##
-    ('t_stopgrad', 'stop'),
-    ('constant_scale', 'const'),
-    ##
-    ('target_ratio', 'r'),
     ('batch_size', 'b'),
     ##
     ('conditional', 'cond'),
@@ -90,7 +85,7 @@ base = {
 
         ## serialization
         'vis_freq': 10,
-        'logbase': 'logs/maze2d',
+        'logbase': 'logs',
         'prefix': 'plans/release',
         'exp_name': watch(plan_args_to_watch),
         'suffix': '0',
@@ -98,7 +93,7 @@ base = {
         'conditional': False,
 
         ## loading
-        'diffusion_loadpath': 'f:diffusion/cond_H{horizon}_T{n_diffusion_steps}',
+        'diffusion_loadpath': 'f:diffusion/H{horizon}_T{n_diffusion_steps}',
         'diffusion_epoch': 'latest',
     },
 

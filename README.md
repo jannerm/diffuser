@@ -2,7 +2,7 @@
 
 
 Training and visualizing of diffusion models from [Planning with Diffusion for Flexible Behavior Synthesis](https://diffusion-planning.github.io/).
-Guided sampling code to come soon!
+This branch has the Maze2D experiments and will be merged into main shortly.
 
 <p align="center">
     <img src="https://diffusion-planning.github.io/images/diffuser-card.png" width="60%" title="Diffuser model">
@@ -25,12 +25,16 @@ pip install -e .
 
 Train a diffusion model with:
 ```
-python scripts/train.py --dataset hopper-medium-replay-v2 \
-    --horizon 512 --n_diffusion_steps 200
+python scripts/train.py --dataset maze2d-large-v1
 ```
 
-The default hyperparameters are listed in [`config/locomotion.py`](config/locomotion.py).
+The default hyperparameters are listed in [`config/maze2d.py`](config/maze2d.py).
 You can override any of them with runtime flags, eg `--batch_size 64`.
+
+Plan using the diffusion model with:
+```
+python scripts/plan_maze2d.py --dataset maze2d-large-v1
+```
 
 
 ## Docker

@@ -96,7 +96,7 @@ For example, the following flags:
 --value_loadpath 'f:values/defaults_H{horizon}_T{n_diffusion_steps}_d{discount}`
 ```
 will resolve to a value checkpoint path of `values/defaults_H32_T20_d0.997`. It is possible to
-change the horizon of the diffusion model after training (see [this notebook](diffuser_sample.ipynb) for an example),
+change the horizon of the diffusion model after training (see [https://colab.research.google.com/drive/1YajKhu-CUIGBJeQPehjVPJcK_b38a8Nc?usp=sharing](diffuser_sample.ipynb) for an example),
 but not for the value function.
 
 ## Docker

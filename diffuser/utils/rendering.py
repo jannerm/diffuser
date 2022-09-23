@@ -62,7 +62,6 @@ class MuJoCoRenderer:
         else:
             self.env = env
         ## - 1 because the envs in renderer are fully-observed
-        ## @TODO : clean up
         self.observation_dim = np.prod(self.env.observation_space.shape) - 1
         self.action_dim = np.prod(self.env.action_space.shape)
         try:

@@ -2,6 +2,8 @@ bin/
 logs/
 wandb/
 
+*.sif
+
 fuse.cfg
 
 *.ai

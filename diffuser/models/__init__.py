@@ -1,2 +1,2 @@
-from .temporal import TemporalUnet, TemporalValue
-from .diffusion import GaussianDiffusion
+from .temporal import TemporalUnet, ValueFunction
+from .diffusion import GaussianDiffusion, ValueDiffusion

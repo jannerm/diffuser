@@ -22,7 +22,6 @@ def to_torch(x, dtype=None, device=None):
 		return {k: to_torch(v, dtype, device) for k, v in x.items()}
 	elif torch.is_tensor(x):
 		return x.to(device).type(dtype)
-		# import pdb; pdb.set_trace()
 	return torch.tensor(x, dtype=dtype, device=device)
 
 def to_device(x, device=DEVICE):
@@ -31,22 +30,7 @@ def to_device(x, device=DEVICE):
 	elif type(x) is dict:
 		return {k: to_device(v, device) for k, v in x.items()}
 	else:
-		print(f'Unrecognized type in `to_device`: {type(x)}')
-		pdb.set_trace()
-	# return [x.to(device) for x in xs]
-
-# def atleast_2d(x, axis=0):
-# 	'''
-# 		works for both np arrays and torch tensors
-# 	'''
-# 	while len(x.shape) < 2:
-# 		shape = (1, *x.shape) if axis == 0 else (*x.shape, 1)
-# 		x = x.reshape(*shape)
-# 	return x
-
-# def to_2d(x):
-# 	dim = x.shape[-1]
-# 	return x.reshape(-1, dim)
+		raise RuntimeError(f'Unrecognized type in `to_device`: {type(x)}')
 
 def batchify(batch):
 	'''

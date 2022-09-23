@@ -61,7 +61,7 @@ The `--logbase` flag points the [experiment loaders](scripts/plan_guided.py#L22-
 You can override planning hyperparameters with flags, such as `--batch_size 8`, but the default
 hyperparameters are a good starting point.
 
-**Results**: The current codebase performs a few points better (averaged over environments) than
+**Results.** The current codebase performs a few points better (averaged over environments) than
 described in the arxiv v1 paper due to small tweaks to the architecture and objective. It is also
 somewhat faster. The arxiv paper will be updated shortly to reflect these changes.
 
@@ -126,10 +126,10 @@ singularity build --fakeroot diffuser.sif Singularity.def
 
 2. Test the container:
 ```
-singularity exec -B /var/lib/dcv-gl --nv --writable-tmpfs diffuser.sif \
+singularity exec --nv --writable-tmpfs diffuser.sif \
         bash -c \
         "pip install -e . && \
-        python /home/code/scripts/train.py --dataset halfcheetah-medium-expert-v2 --logbase logs"
+        python scripts/train.py --dataset halfcheetah-medium-expert-v2 --logbase logs"
 ```
 
 

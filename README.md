@@ -86,7 +86,7 @@ See [locomotion:values](config/locomotion.py#L67-L108) for the corresponding def
 ```
 python scripts/plan_guided.py --dataset halfcheetah-medium-expert-v2 --logbase logs
 ```
-See [locomotion:plans](config/locomotion.py#110-L149) for the corresponding default hyperparameters.
+See [locomotion:plans](config/locomotion.py#L110-L149) for the corresponding default hyperparameters.
 
 **Deferred f-strings.** Note that some planning script arguments, such as `--n_diffusion_steps` or `--discount`,
 do not actually change any logic during planning, but simply load a different model using a deferred f-string.

@@ -72,21 +72,21 @@ somewhat faster. The arxiv paper will be updated shortly to reflect these change
 python scripts/train.py --dataset halfcheetah-medium-expert-v2
 ```
 
-The default hyperparameters are listed in [locomotion:diffusion](config/locomotion.py#L38-L81).
+The default hyperparameters are listed in [locomotion:diffusion](config/locomotion.py#L22-L65).
 You can override any of them with flags, eg, `--n_diffusion_steps 100`.
 
 2. Train a value function with:
 ```
 python scripts/train_values.py --dataset halfcheetah-medium-expert-v2
 ```
-See [locomotion:values](config/locomotion.py#L83-L124) for the corresponding default hyperparameters.
+See [locomotion:values](config/locomotion.py#L67-L108) for the corresponding default hyperparameters.
 
 
 3. Plan using your newly-trained models with the same command as in the pretrained planning section, simply replacing the logbase to point to your new models:
 ```
 python scripts/plan_guided.py --dataset halfcheetah-medium-expert-v2 --logbase logs
 ```
-See [locomotion:plans](config/locomotion.py#126-L165) for the corresponding default hyperparameters.
+See [locomotion:plans](config/locomotion.py#110-L149) for the corresponding default hyperparameters.
 
 **Deferred f-strings.** Note that some planning script arguments, such as `--n_diffusion_steps` or `--discount`,
 do not actually change any logic during planning, but simply load a different model using a deferred f-string.

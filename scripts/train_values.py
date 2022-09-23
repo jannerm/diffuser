@@ -1,4 +1,5 @@
 import diffuser.utils as utils
+import pdb
 
 
 #-----------------------------------------------------------------------------#
@@ -6,10 +7,10 @@ import diffuser.utils as utils
 #-----------------------------------------------------------------------------#
 
 class Parser(utils.Parser):
-    dataset: str = 'hopper-medium-expert-v2'
+    dataset: str = 'walker2d-medium-replay-v2'
     config: str = 'config.locomotion'
 
-args = Parser().parse_args('diffusion')
+args = Parser().parse_args('values')
 
 
 #-----------------------------------------------------------------------------#
@@ -25,6 +26,10 @@ dataset_config = utils.Config(
     preprocess_fns=args.preprocess_fns,
     use_padding=args.use_padding,
     max_path_length=args.max_path_length,
+    ## value-specific kwargs
+    discount=args.discount,
+    termination_penalty=args.termination_penalty,
+    normed=args.normed,
 )
 
 render_config = utils.Config(
@@ -39,7 +44,6 @@ renderer = render_config()
 observation_dim = dataset.observation_dim
 action_dim = dataset.action_dim
 
-
 #-----------------------------------------------------------------------------#
 #------------------------------ model & trainer ------------------------------#
 #-----------------------------------------------------------------------------#
@@ -51,7 +55,6 @@ model_config = utils.Config(
     transition_dim=observation_dim + action_dim,
     cond_dim=observation_dim,
     dim_mults=args.dim_mults,
-    attention=args.attention,
     device=args.device,
 )
 
@@ -63,12 +66,6 @@ diffusion_config = utils.Config(
     action_dim=action_dim,
     n_timesteps=args.n_diffusion_steps,
     loss_type=args.loss_type,
-    clip_denoised=args.clip_denoised,
-    predict_epsilon=args.predict_epsilon,
-    ## loss weighting
-    action_weight=args.action_weight,
-    loss_weights=args.loss_weights,
-    loss_discount=args.loss_discount,
     device=args.device,
 )
 
@@ -98,19 +95,16 @@ diffusion = diffusion_config(model)
 
 trainer = trainer_config(diffusion, dataset, renderer)
 
-
 #-----------------------------------------------------------------------------#
 #------------------------ test forward & backward pass -----------------------#
 #-----------------------------------------------------------------------------#
 
-utils.report_parameters(model)
-
 print('Testing forward...', end=' ', flush=True)
 batch = utils.batchify(dataset[0])
+
 loss, _ = diffusion.loss(*batch)
 loss.backward()
 print('✓')
-
 
 #-----------------------------------------------------------------------------#
 #--------------------------------- main loop ---------------------------------#
@@ -121,4 +115,3 @@ n_epochs = int(args.n_train_steps // args.n_steps_per_epoch)
 for i in range(n_epochs):
     print(f'Epoch {i} / {n_epochs} | {args.savepath}')
     trainer.train(n_train_steps=args.n_steps_per_epoch)
-

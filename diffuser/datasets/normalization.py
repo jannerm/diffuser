@@ -25,8 +25,6 @@ class DatasetNormalizer:
                 self.normalizers[key] = normalizer(val)
             except:
                 print(f'[ utils/normalization ] Skipping {key} | {normalizer}')
-            # key: normalizer(val)
-            # for key, val in dataset.items()
 
     def __repr__(self):
         string = ''

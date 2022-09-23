@@ -1,8 +1,4 @@
-# We need the CUDA base dockerfile to enable GPU rendering
-# on hosts with GPUs.
-# The image below is a pinned version of nvidia/cuda:9.1-cudnn7-devel-ubuntu16.04 (from Jan 2018)
-# If updating the base image, be sure to test on GPU since it has broken in the past.
-FROM nvidia/cuda:10.1-cudnn7-devel-ubuntu16.04
+FROM nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu20.04
 
 SHELL ["/bin/bash", "-c"]
 
@@ -15,12 +11,13 @@ RUN apt-get update -q \
     cmake \
     curl \
     git \
-    libav-tools \
     libgl1-mesa-dev \
     libgl1-mesa-glx \
     libglew-dev \
     libosmesa6-dev \
+    ffmpeg \
     net-tools \
+    parallel \
     software-properties-common \
     swig \
     unzip \
@@ -89,7 +86,13 @@ ENV PATH /opt/conda/envs/diffuser/bin:$PATH
 ##########################################################
 RUN curl -o /usr/local/bin/patchelf https://s3-us-west-2.amazonaws.com/openai-sci-artifacts/manual-builds/patchelf_0.9_amd64.elf \
     && chmod +x /usr/local/bin/patchelf
-# RUN pip install gym[all]==0.12.5
 
 RUN echo "source activate /opt/conda/envs/diffuser && export PYTHONPATH=$PYTHONPATH:/home/code && export CUDA_VISIBLE_DEVICES=0" >> ~/.bashrc
 RUN source ~/.bashrc
+
+##########################################################
+### mount for repo
+##########################################################
+
+RUN mkdir /home/code
+RUN mkdir /home/logs

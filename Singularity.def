@@ -1,0 +1,102 @@
+Bootstrap: docker
+From: nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu20.04
+
+%setup
+    ## move mjkey into container
+        ## @TODO figure out how to read in environment variables in %files
+        ## so we can complete the move there instead
+    cp azure/files/mjkey.txt ${SINGULARITY_ROOTFS}/opt/mjkey.txt
+
+%files
+    environment.yml /opt/environment.yml
+    azure/files/mjkey.txt /opt/mjkey.txt
+
+%post
+
+    export BRC_USERNAME=janner
+    export DEBIAN_FRONTEND=noninteractive 
+
+    ## read and write to host filesystem
+    mkdir -p /global/scratch/$BRC_USERNAME
+    mkdir -p /global/home/users/$BRC_USERNAME
+
+    ## nvidia drivers
+    echo "\n #Nvidia driver paths \n" >> /environment
+    echo 'export PATH="/nvbin:$PATH"' >> /environment
+    echo 'export LD_LIBRARY_PATH="/nvlib:$LD_LIBRARY_PATH"' >> /environment
+
+    ## cuda
+    echo "\n #Cuda paths \n" >> /environment
+    echo 'export CPATH="/usr/local/cuda/include:$CPATH"' >> /environment
+    echo 'export PATH="/usr/local/cuda/bin:$PATH"' >> /environment
+    echo 'export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"' >> /environment
+    echo 'export CUDA_HOME="/usr/local/cuda"' >> /environment
+
+    ## nvidia
+    touch /bin/nvidia-smi
+    touch /usr/bin/nvidia-smi
+    touch /usr/bin/nvidia-debugdump
+    touch /usr/bin/nvidia-persistenced
+    touch /usr/bin/nvidia-cuda-mps-control
+    touch /usr/bin/nvidia-cuda-mps-server
+
+    mkdir /etc/dcv
+    mkdir /var/lib/dcv-gl
+    mkdir -p /usr/lib64
+
+    ## apt
+    apt-get update -y
+    apt-get install -y \
+        wget \
+        unzip \
+        git \
+        libosmesa-dev \
+        libglew-dev \
+        patchelf \
+        ffmpeg \
+        libglfw3-dev \
+        build-essential \
+        libglib2.0-0 \
+        libsm6 \
+        libxext6 \
+        libxrender-dev \
+        parallel \
+        cmake \
+        libopenmpi-dev \
+        python3-dev \
+        zlib1g-dev
+
+    ## mujoco
+    mkdir $HOME/.mujoco
+    wget https://www.roboti.us/download/mujoco200_linux.zip -O $HOME/.mujoco/mujoco200_linux.zip
+    unzip $HOME/.mujoco/mujoco200_linux.zip -d $HOME/.mujoco/
+    cp -r $HOME/.mujoco/mujoco200_linux $HOME/.mujoco/mujoco200
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mujoco200/bin
+    cp /opt/mjkey.txt $HOME/.mujoco
+    mkdir $HOME/.mujoco/testdir
+
+    ## conda
+    wget https://repo.anaconda.com/archive/Anaconda3-2020.02-Linux-x86_64.sh -O /opt/anaconda3.sh
+    bash /opt/anaconda3.sh -b -p /opt/anaconda3
+    . /opt/anaconda3/etc/profile.d/conda.sh
+
+    ## python requirements
+    conda env create -f /opt/environment.yml
+    conda activate diffuser
+
+    chmod -R 777 /opt
+    chmod -R 777 $HOME/.mujoco
+    chmod -R 777 /opt/anaconda3/envs/diffuser/lib/python3.8/site-packages/mujoco_py/generated
+
+%environment
+    ## mujoco binaries
+    export BRC_USERNAME=janner
+    export MUJOCO_PY_MJKEY_PATH=/opt/mjkey.txt
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/${BRC_USERNAME}/.mujoco/mujoco200/bin
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/global/home/users/${BRC_USERNAME}/.mujoco/mujoco200/bin
+    ## don't want to use `conda init` because it might overwrite the ~/.bashrc on the host
+    __conda_setup="$('/opt/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    eval "$__conda_setup"
+    conda activate diffuser
+
+    unset LD_PRELOAD

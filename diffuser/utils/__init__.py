@@ -6,3 +6,4 @@ from .config import *
 from .rendering import *
 from .arrays import *
 from .colab import *
+from .logger import *

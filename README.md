@@ -73,7 +73,7 @@ python scripts/train.py --dataset halfcheetah-medium-expert-v2
 ```
 
 The default hyperparameters are listed in [locomotion:diffusion](config/locomotion.py#L38-L81).
-You can override any of them with flags, eg `--n_diffusion_steps 100`.
+You can override any of them with flags, eg, `--n_diffusion_steps 100`.
 
 2. Train a value function with:
 ```
@@ -92,8 +92,8 @@ See [locomotion:plans](config/locomotion.py#126-L165) for the corresponding defa
 do not actually change any logic during planning, but simply load a different model using a deferred f-string.
 For example, the following flags:
 ```
-    ---horizon 32 --n_diffusion_steps 20 --discount 0.997
-    --value_loadpath 'f:values/defaults_H{horizon}_T{n_diffusion_steps}_d{discount}`
+---horizon 32 --n_diffusion_steps 20 --discount 0.997
+--value_loadpath 'f:values/defaults_H{horizon}_T{n_diffusion_steps}_d{discount}`
 ```
 will resolve to a value checkpoint path of `values/defaults_H32_T20_d0.997`. It is possible to
 change the horizon of the diffusion model after training (see [this notebook](diffuser_sample.ipynb) for an example),

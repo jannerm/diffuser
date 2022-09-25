@@ -101,12 +101,12 @@ but not for the value function.
 
 ## Docker
 
-1. Build the container:
+1. Build the image:
 ```
 docker build -f Dockerfile . -t diffuser
 ```
 
-2. Test the container:
+2. Test the image:
 ```
 docker run -it --rm --gpus all \
     --mount type=bind,source=$PWD,target=/home/code \
@@ -124,7 +124,7 @@ docker run -it --rm --gpus all \
 singularity build --fakeroot diffuser.sif Singularity.def
 ```
 
-2. Test the container:
+2. Test the image:
 ```
 singularity exec --nv --writable-tmpfs diffuser.sif \
         bash -c \

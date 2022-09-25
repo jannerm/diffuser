@@ -93,7 +93,7 @@ do not actually change any logic during planning, but simply load a different mo
 For example, the following flags:
 ```
 ---horizon 32 --n_diffusion_steps 20 --discount 0.997
---value_loadpath 'f:values/defaults_H{horizon}_T{n_diffusion_steps}_d{discount}`
+--value_loadpath 'f:values/defaults_H{horizon}_T{n_diffusion_steps}_d{discount}'
 ```
 will resolve to a value checkpoint path of `values/defaults_H32_T20_d0.997`. It is possible to
 change the horizon of the diffusion model after training (see [here](https://colab.research.google.com/drive/1YajKhu-CUIGBJeQPehjVPJcK_b38a8Nc?usp=sharing) for an example),

@@ -3,6 +3,10 @@
 
 Training and visualizing of diffusion models from [Planning with Diffusion for Flexible Behavior Synthesis](https://diffusion-planning.github.io/).
 
+The [main branch](https://github.com/jannerm/diffuser/tree/main) contains code for training diffusion models and planning via value-function guided sampling on the D4RL locomotion environments.
+The [kuka branch](https://github.com/jannerm/diffuser/tree/kuka) contains block-stacking experiments.
+The [maze2d branch](https://github.com/jannerm/diffuser/tree/maze2d) contains goal-reaching via inpainting in the Maze2D environments.
+
 <p align="center">
     <img src="https://diffusion-planning.github.io/images/diffuser-card.png" width="60%" title="Diffuser model">
 </p>

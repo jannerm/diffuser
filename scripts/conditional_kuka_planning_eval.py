@@ -7,7 +7,7 @@ import pybullet as p
 import gym
 import d4rl
 
-from diffusion.denoising_diffusion_pytorch import GaussianDiffusion
+from denoising_diffusion_pytorch import GaussianDiffusion
 from denoising_diffusion_pytorch import Trainer
 from denoising_diffusion_pytorch.datasets.tamp import KukaDataset
 from denoising_diffusion_pytorch.mixer import MixerUnet
@@ -177,7 +177,7 @@ def eval_episode(model, env, dataset, idx=0):
 
         rewards = rewards + reward
 
-    if osp.exists("cond_samples/"):
+    if not osp.exists("cond_samples/"):
         os.makedirs("cond_samples/")
 
     writer = get_writer("cond_samples/cond_video_writer{}.mp4".format(idx))

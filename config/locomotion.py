@@ -15,7 +15,6 @@ args_to_watch = [
     ('discount', 'd'),
 ]
 
-# logbase = '/home/janner/mount/logs/diffuser-singularity/logs'
 logbase = 'logs'
 
 base = {

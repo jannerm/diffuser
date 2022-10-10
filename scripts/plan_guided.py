@@ -29,6 +29,9 @@ value_experiment = utils.load_diffusion(
     epoch=args.value_epoch, seed=args.seed,
 )
 
+## ensure that the diffusion model and value function are compatible with each other
+utils.check_compatibility(diffusion_experiment, value_experiment)
+
 diffusion = diffusion_experiment.ema
 dataset = diffusion_experiment.dataset
 renderer = diffusion_experiment.renderer

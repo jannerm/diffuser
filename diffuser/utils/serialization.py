@@ -58,3 +58,22 @@ def load_diffusion(*loadpath, epoch='latest', device='cuda:0', seed=None):
     trainer.load(epoch)
 
     return DiffusionExperiment(dataset, renderer, model, diffusion, trainer.ema_model, trainer, epoch)
+
+def check_compatibility(experiment_1, experiment_2):
+    '''
+        returns True if `experiment_1 and `experiment_2` have
+        the same normalizers and number of diffusion steps
+    '''
+    normalizers_1 = experiment_1.dataset.normalizer.get_field_normalizers()
+    normalizers_2 = experiment_2.dataset.normalizer.get_field_normalizers()
+    for key in normalizers_1:
+        norm_1 = type(normalizers_1[key])
+        norm_2 = type(normalizers_2[key])
+        assert norm_1 == norm_2, \
+            f'Normalizers should be identical, found {norm_1} and {norm_2} for field {key}'
+
+    n_steps_1 = experiment_1.diffusion.n_timesteps
+    n_steps_2 = experiment_2.diffusion.n_timesteps
+    assert n_steps_1 == n_steps_2, \
+        ('Number of timesteps should match between diffusion experiments, '
+        f'found {n_steps_1} and {n_steps_2}')

@@ -78,7 +78,7 @@ base = {
 
         ## dataset
         'loader': 'datasets.ValueDataset',
-        'normalizer': 'LimitsNormalizer',
+        'normalizer': 'GaussianNormalizer',
         'preprocess_fns': [],
         'use_padding': True,
         'max_path_length': 1000,

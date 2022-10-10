@@ -1,0 +1,14 @@
+docker: jannerm/diffuser-loc:latest
+
+bucket: diffuser
+
+mount: ~/mount/logs/diffuser-singularity/:logs/diffuser-singularity
+
+exclude:
+  - '*.egg-info'
+  - logs
+  - singularity
+
+brc: './scratch/'
+
+brc-logs: 'logs/:./scratch/diffuser-release/logs/'

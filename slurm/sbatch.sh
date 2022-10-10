@@ -11,7 +11,7 @@
 #SBATCH --mem=24G
 #SBATCH --gres=gpu:TITAN:1
 #SBATCH -x n0258.savio3
-#SBATCH -x n0145.savio3,n0260.savio3,n0261.savio3,n0175.savio3
+#SBATCH -x n0145.savio3,n0260.savio3,n0261.savio3,n0175.savio3,n0258.savio3
 
 
 export ARGS="$@"

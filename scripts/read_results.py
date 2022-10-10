@@ -84,4 +84,6 @@ if __name__ == '__main__':
 			if np.isnan(mean):
 				continue
 			path, name = os.path.split(subdir)
-			print(f'{dataset.ljust(30)} | {name.ljust(50)} | {path.ljust(50)} | {len(scores)} scores \n    {mean:.2f} +/- {err:.2f}    |    {scores} \n')
+			print(f'{dataset.ljust(30)} | {name.ljust(50)} | {path.ljust(50)} | {len(scores)} scores \n    {mean:.1f} +/- {err:.2f}')
+			if verbose:
+				print(scores)

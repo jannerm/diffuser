@@ -11,6 +11,7 @@ The [maze2d branch](https://github.com/jannerm/diffuser/tree/maze2d) contains go
     <img src="https://diffusion-planning.github.io/images/diffuser-card.png" width="60%" title="Diffuser model">
 </p>
 
+**Update 10/17/2022:** A bug in the value function scaling has been fixed in [this commit](https://github.com/jannerm/diffuser/commit/3d7361c2d028473b601cc04f5eecd019e14eb4eb). Thanks to [Philemon Brakel](https://scholar.google.com/citations?user=Q6UMpRYAAAAJ&hl=en) for catching it!
 
 ## Quickstart
 

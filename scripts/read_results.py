@@ -73,7 +73,7 @@ if __name__ == '__main__':
 	args = Parser().parse_args()
 
 	for dataset in ([args.dataset] if args.dataset else DATASETS):
-		subdirs = glob.glob(os.path.join(LOGBASE, dataset, EXP_NAME))
+		subdirs = sorted(glob.glob(os.path.join(LOGBASE, dataset, EXP_NAME)))
 
 		for subdir in subdirs:
 			reldir = subdir.split('/')[-1]

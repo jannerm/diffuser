@@ -14,7 +14,7 @@ do
 					python -u scripts/plan_guided.py \
 						--logbase logs/pretrained \
 						--dataset $env-$buffer-v2 \
-						--prefix plans/reference \
+						--prefix plans/reference_var \
 						--vis_freq 500 \
 						--verbose False \
 						--suffix {1} \

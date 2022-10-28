@@ -25,7 +25,7 @@ pip install -e .
 
 Train a diffusion model with:
 ```
-python scripts/train.py --dataset maze2d-large-v1
+python scripts/train.py --config config.maze2d --dataset maze2d-large-v1
 ```
 
 The default hyperparameters are listed in [`config/maze2d.py`](config/maze2d.py).
@@ -33,7 +33,7 @@ You can override any of them with runtime flags, eg `--batch_size 64`.
 
 Plan using the diffusion model with:
 ```
-python scripts/plan_maze2d.py --dataset maze2d-large-v1
+python scripts/plan_maze2d.py --config config.maze2d --dataset maze2d-large-v1
 ```
 
 

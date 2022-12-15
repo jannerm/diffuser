@@ -4,22 +4,23 @@ import diffuser.sampling as sampling
 import diffuser.utils as utils
 
 
-#-----------------------------------------------------------------------------#
-#----------------------------------- setup -----------------------------------#
-#-----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# ----------------------------------- setup -----------------------------------#
+# -----------------------------------------------------------------------------#
 
 class Parser(utils.Parser):
     dataset: str = 'walker2d-medium-replay-v2'
     config: str = 'config.locomotion'
 
+
 args = Parser().parse_args('plan')
 
 
-#-----------------------------------------------------------------------------#
-#---------------------------------- loading ----------------------------------#
-#-----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# ---------------------------------- loading ----------------------------------#
+# -----------------------------------------------------------------------------#
 
-## load diffusion model and value function from disk
+# load diffusion model and value function from disk
 diffusion_experiment = utils.load_diffusion(
     args.loadbase, args.dataset, args.diffusion_loadpath,
     epoch=args.diffusion_epoch, seed=args.seed,
@@ -29,14 +30,14 @@ value_experiment = utils.load_diffusion(
     epoch=args.value_epoch, seed=args.seed,
 )
 
-## ensure that the diffusion model and value function are compatible with each other
+# ensure that the diffusion model and value function are compatible with each other
 utils.check_compatibility(diffusion_experiment, value_experiment)
 
 diffusion = diffusion_experiment.ema
 dataset = diffusion_experiment.dataset
 renderer = diffusion_experiment.renderer
 
-## initialize value guide
+# initialize value guide
 value_function = value_experiment.ema
 guide_config = utils.Config(args.guide, model=value_function, verbose=False)
 guide = guide_config()
@@ -49,7 +50,7 @@ logger_config = utils.Config(
     max_render=args.max_render,
 )
 
-## policies are wrappers around an unconditional diffusion model and a value guide
+# policies are wrappers around an unconditional diffusion model and a value guide
 policy_config = utils.Config(
     args.policy,
     guide=guide,
@@ -57,7 +58,7 @@ policy_config = utils.Config(
     diffusion_model=diffusion,
     normalizer=dataset.normalizer,
     preprocess_fns=args.preprocess_fns,
-    ## sampling kwargs
+    # sampling kwargs
     sample_fn=sampling.n_step_guided_p_sample,
     n_guide_steps=args.n_guide_steps,
     t_stopgrad=args.t_stopgrad,
@@ -69,32 +70,44 @@ logger = logger_config()
 policy = policy_config()
 
 
-#-----------------------------------------------------------------------------#
-#--------------------------------- main loop ---------------------------------#
-#-----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# --------------------------------- main loop ---------------------------------#
+# -----------------------------------------------------------------------------#
+
+
+adroit = False
+if args.dataset in ['relocate-expert-v0', 'pen-expert-v0', 'hammer-expert-v0', 'door-expeert-v0']:
+    adroit = True
 
 env = dataset.env
 observation = env.reset()
 
-## observations for rendering
+# observations for rendering
 rollout = [observation.copy()]
+if adroit:
+    rollout_qpos = [env.get_env_state()['qpos']]
+    rollout_qvel = [env.get_env_state()['qvel']]
+else:
+    rollout_qpos, rollout_qvel = None, None
 
 total_reward = 0
 for t in range(args.max_episode_length):
 
-    if t % 10 == 0: print(args.savepath, flush=True)
+    if t % 10 == 0:
+        print(args.savepath, flush=True)
 
-    ## save state for rendering only
+    # save state for rendering only
     state = env.state_vector().copy()
 
-    ## format current observation for conditioning
+    # format current observation for conditioning
     conditions = {0: observation}
-    action, samples = policy(conditions, batch_size=args.batch_size, verbose=args.verbose)
+    action, samples = policy(
+        conditions, batch_size=args.batch_size, verbose=args.verbose)
 
-    ## execute action in environment
+    # execute action in environment
     next_observation, reward, terminal, _ = env.step(action)
 
-    ## print reward and score
+    # print reward and score
     total_reward += reward
     score = env.get_normalized_score(total_reward)
     print(
@@ -103,16 +116,20 @@ for t in range(args.max_episode_length):
         flush=True,
     )
 
-    ## update rollout observations
+    # update rollout observations
     rollout.append(next_observation.copy())
+    if adroit:
+        rollout_qpos.append(env.get_env_state()['qpos'])
+        rollout_qvel.append(env.get_env_state()['qvel'])
 
-    ## render every `args.vis_freq` steps
-    logger.log(t, samples, state, rollout)
+    # render every `args.vis_freq` steps
+    logger.log(t, samples, state, rollout, rollout_qpos, rollout_qvel, adroit)
 
     if terminal:
         break
 
     observation = next_observation
 
-## write results to json file at `args.savepath`
-logger.finish(t, score, total_reward, terminal, diffusion_experiment, value_experiment)
+# write results to json file at `args.savepath`
+logger.finish(t, score, total_reward, terminal,
+              diffusion_experiment, value_experiment)

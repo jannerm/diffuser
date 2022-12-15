@@ -1,0 +1,73 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "LD_LIBRARY_PATH": "$LD_LIBRARY_PATH:/home/admin/.mujoco/mujoco200/bin",
+                "DISPLAY": ":0"
+            }
+        },
+        {
+            "name": "Python: train_values.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train_values.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "LD_LIBRARY_PATH": "$LD_LIBRARY_PATH:/home/admin/.mujoco/mujoco200/bin",
+                "DISPLAY": ":0"
+            },
+            "args": [
+                "--dataset",
+                "relocate-expert-v0",
+            ]
+        },
+        {
+            "name": "Python: train.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "LD_LIBRARY_PATH": "$LD_LIBRARY_PATH:/home/admin/.mujoco/mujoco200/bin",
+                "DISPLAY": ":0"
+            },
+            "args": [
+                "--dataset",
+                // "relocate-expert-v0",
+                "door-expert-v0",
+            ]
+        },
+        {
+            "name": "Python: plan_guided.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/plan_guided.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "LD_LIBRARY_PATH": "$LD_LIBRARY_PATH:/home/admin/.mujoco/mujoco200/bin",
+                "DISPLAY": ":0"
+            },
+            "args": [
+                "--dataset",
+                "relocate-expert-v0",
+                "--logbase",
+                "logs",
+                "--discount",
+                "0.99"
+            ]
+        }
+    ]
+}

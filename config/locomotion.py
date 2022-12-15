@@ -2,16 +2,16 @@ import socket
 
 from diffuser.utils import watch
 
-#------------------------ base ------------------------#
+# ------------------------ base ------------------------#
 
-## automatically make experiment names for planning
-## by labelling folders with these args
+# automatically make experiment names for planning
+# by labelling folders with these args
 
 args_to_watch = [
     ('prefix', ''),
     ('horizon', 'H'),
     ('n_diffusion_steps', 'T'),
-    ## value kwargs
+    # value kwargs
     ('discount', 'd'),
 ]
 
@@ -19,7 +19,7 @@ logbase = 'logs'
 
 base = {
     'diffusion': {
-        ## model
+        # model
         'model': 'models.TemporalUnet',
         'diffusion': 'models.GaussianDiffusion',
         'horizon': 32,
@@ -32,7 +32,7 @@ base = {
         'attention': False,
         'renderer': 'utils.MuJoCoRenderer',
 
-        ## dataset
+        # dataset
         'loader': 'datasets.SequenceDataset',
         'normalizer': 'GaussianNormalizer',
         'preprocess_fns': [],
@@ -40,12 +40,12 @@ base = {
         'use_padding': True,
         'max_path_length': 1000,
 
-        ## serialization
+        # serialization
         'logbase': logbase,
         'prefix': 'diffusion/defaults',
         'exp_name': watch(args_to_watch),
 
-        ## training
+        # training
         'n_steps_per_epoch': 10000,
         'loss_type': 'l2',
         'n_train_steps': 1e6,
@@ -71,24 +71,24 @@ base = {
         'dim_mults': (1, 2, 4, 8),
         'renderer': 'utils.MuJoCoRenderer',
 
-        ## value-specific kwargs
+        # value-specific kwargs
         'discount': 0.99,
         'termination_penalty': -100,
         'normed': False,
 
-        ## dataset
+        # dataset
         'loader': 'datasets.ValueDataset',
         'normalizer': 'GaussianNormalizer',
         'preprocess_fns': [],
         'use_padding': True,
         'max_path_length': 1000,
 
-        ## serialization
+        # serialization
         'logbase': logbase,
         'prefix': 'values/defaults',
         'exp_name': watch(args_to_watch),
 
-        ## training
+        # training
         'n_steps_per_epoch': 10000,
         'loss_type': 'value_l2',
         'n_train_steps': 200e3,
@@ -115,13 +115,13 @@ base = {
         'device': 'cuda',
         'seed': None,
 
-        ## sample_kwargs
+        # sample_kwargs
         'n_guide_steps': 2,
         'scale': 0.1,
         't_stopgrad': 2,
         'scale_grad_by_std': True,
 
-        ## serialization
+        # serialization
         'loadbase': None,
         'logbase': logbase,
         'prefix': 'plans/',
@@ -129,14 +129,14 @@ base = {
         'vis_freq': 100,
         'max_render': 8,
 
-        ## diffusion model
+        # diffusion model
         'horizon': 32,
         'n_diffusion_steps': 20,
 
-        ## value function
+        # value function
         'discount': 0.997,
 
-        ## loading
+        # loading
         'diffusion_loadpath': 'f:diffusion/defaults_H{horizon}_T{n_diffusion_steps}',
         'value_loadpath': 'f:values/defaults_H{horizon}_T{n_diffusion_steps}_d{discount}',
 
@@ -149,7 +149,7 @@ base = {
 }
 
 
-#------------------------ overrides ------------------------#
+# ------------------------ overrides ------------------------#
 
 
 hopper_medium_expert_v2 = {
@@ -175,4 +175,14 @@ halfcheetah_medium_replay_v2 = halfcheetah_medium_v2 = halfcheetah_medium_expert
         'scale': 0.001,
         't_stopgrad': 4,
     },
+}
+
+pen_expert_v0 = hammer_expert_v0 = door_expert_v0 = {
+    'diffusion': {
+        'n_diffusion_steps': 20,
+        'n_steps_per_epoch': 100,
+        'n_train_steps': 1e4,
+        'save_freq': 1000,
+        'sample_freq': 1000,
+    }
 }

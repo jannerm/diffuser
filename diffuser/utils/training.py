@@ -9,15 +9,18 @@ from .arrays import batch_to_device, to_np, to_device, apply_dict
 from .timer import Timer
 from .cloud import sync_logs
 
+
 def cycle(dl):
     while True:
         for data in dl:
             yield data
 
+
 class EMA():
     '''
         empirical moving average
     '''
+
     def __init__(self, beta):
         super().__init__()
         self.beta = beta
@@ -31,6 +34,7 @@ class EMA():
         if old is None:
             return new
         return old * self.beta + (1 - self.beta) * new
+
 
 class Trainer(object):
     def __init__(
@@ -77,7 +81,8 @@ class Trainer(object):
             self.dataset, batch_size=1, num_workers=0, shuffle=True, pin_memory=True
         ))
         self.renderer = renderer
-        self.optimizer = torch.optim.Adam(diffusion_model.parameters(), lr=train_lr)
+        self.optimizer = torch.optim.Adam(
+            diffusion_model.parameters(), lr=train_lr)
 
         self.logdir = results_folder
         self.bucket = bucket
@@ -95,16 +100,19 @@ class Trainer(object):
             return
         self.ema.update_model_average(self.ema_model, self.model)
 
-    #-----------------------------------------------------------------------------#
-    #------------------------------------ api ------------------------------------#
-    #-----------------------------------------------------------------------------#
+    # -----------------------------------------------------------------------------#
+    # ------------------------------------ api ------------------------------------#
+    # -----------------------------------------------------------------------------#
 
-    def train(self, n_train_steps):
+    def train(self, n_train_steps, adroit):
+
+        # checking if the environment is Adroit
+        self.adroit = adroit
 
         timer = Timer()
         for step in range(n_train_steps):
             for i in range(self.gradient_accumulate_every):
-                batch = next(self.dataloader)
+                batch, qpos, qvel = next(self.dataloader)
                 batch = batch_to_device(batch)
 
                 loss, infos = self.model.loss(*batch)
@@ -122,8 +130,10 @@ class Trainer(object):
                 self.save(label)
 
             if self.step % self.log_freq == 0:
-                infos_str = ' | '.join([f'{key}: {val:8.4f}' for key, val in infos.items()])
-                print(f'{self.step}: {loss:8.4f} | {infos_str} | t: {timer():8.4f}', flush=True)
+                infos_str = ' | '.join(
+                    [f'{key}: {val:8.4f}' for key, val in infos.items()])
+                print(
+                    f'{self.step}: {loss:8.4f} | {infos_str} | t: {timer():8.4f}', flush=True)
 
             if self.step == 0 and self.sample_freq:
                 self.render_reference(self.n_reference)
@@ -147,7 +157,8 @@ class Trainer(object):
         torch.save(data, savepath)
         print(f'[ utils/training ] Saved model to {savepath}', flush=True)
         if self.bucket is not None:
-            sync_logs(self.logdir, bucket=self.bucket, background=self.save_parallel)
+            sync_logs(self.logdir, bucket=self.bucket,
+                      background=self.save_parallel)
 
     def load(self, epoch):
         '''
@@ -160,32 +171,43 @@ class Trainer(object):
         self.model.load_state_dict(data['model'])
         self.ema_model.load_state_dict(data['ema'])
 
-    #-----------------------------------------------------------------------------#
-    #--------------------------------- rendering ---------------------------------#
-    #-----------------------------------------------------------------------------#
+    # -----------------------------------------------------------------------------#
+    # --------------------------------- rendering ---------------------------------#
+    # -----------------------------------------------------------------------------#
 
     def render_reference(self, batch_size=10):
         '''
             renders training points
         '''
 
-        ## get a temporary dataloader to load a single batch
+        # get a temporary dataloader to load a single batch
         dataloader_tmp = cycle(torch.utils.data.DataLoader(
             self.dataset, batch_size=batch_size, num_workers=0, shuffle=True, pin_memory=True
         ))
-        batch = dataloader_tmp.__next__()
+        batch, qpos, qvel = dataloader_tmp.__next__()
         dataloader_tmp.close()
 
-        ## get trajectories and condition at t=0 from batch
+        # get trajectories and condition at t=0 from batch
         trajectories = to_np(batch.trajectories)
-        conditions = to_np(batch.conditions[0])[:,None]
+        conditions = to_np(batch.conditions[0])[:, None]
+        normed_qpos = to_np(qpos)
+        normed_qvel = to_np(qvel)
 
-        ## [ batch_size x horizon x observation_dim ]
+        # [ batch_size x horizon x observation_dim ]
         normed_observations = trajectories[:, :, self.dataset.action_dim:]
-        observations = self.dataset.normalizer.unnormalize(normed_observations, 'observations')
+        observations = self.dataset.normalizer.unnormalize(
+            normed_observations, 'observations')
+        qpos = self.dataset.normalizer.unnormalize(normed_qpos, 'infos/qpos')
+        qvel = self.dataset.normalizer.unnormalize(normed_qvel, 'infos/qvel')
 
         savepath = os.path.join(self.logdir, f'_sample-reference.png')
-        self.renderer.composite(savepath, observations)
+
+        # If the environment is Adroit
+        if self.adroit:
+            self.renderer.composite(
+                savepath, observations, qpos=qpos, qvel_value=qvel)
+        else:
+            self.renderer.composite(savepath, observations)
 
     def render_samples(self, batch_size=2, n_samples=2):
         '''
@@ -193,35 +215,55 @@ class Trainer(object):
         '''
         for i in range(batch_size):
 
-            ## get a single datapoint
-            batch = self.dataloader_vis.__next__()
+            # get a single datapoint
+            batch, qpos, qvel = self.dataloader_vis.__next__()
             conditions = to_device(batch.conditions, 'cuda:0')
 
-            ## repeat each item in conditions `n_samples` times
+            # repeat each item in conditions `n_samples` times
             conditions = apply_dict(
                 einops.repeat,
                 conditions,
                 'b d -> (repeat b) d', repeat=n_samples,
             )
 
-            ## [ n_samples x horizon x (action_dim + observation_dim) ]
+            # [ n_samples x horizon x (action_dim + observation_dim) ]
             samples = self.ema_model(conditions)
             trajectories = to_np(samples.trajectories)
 
-            ## [ n_samples x horizon x observation_dim ]
+            # [ n_samples x horizon x observation_dim ]
             normed_observations = trajectories[:, :, self.dataset.action_dim:]
+            # [ n_samples x horizon x action_dim ]
+            normed_actions = trajectories[:, :, :self.dataset.action_dim]
 
             # [ 1 x 1 x observation_dim ]
-            normed_conditions = to_np(batch.conditions[0])[:,None]
+            normed_conditions = to_np(batch.conditions[0])[:, None]
+            # [ 1 x 1 x action_dim ]
+            normed_actions_conditions = to_np(
+                normed_actions[0][0])[None, None, :]
 
-            ## [ n_samples x (horizon + 1) x observation_dim ]
+            # [ n_samples x (horizon + 1) x observation_dim ]
             normed_observations = np.concatenate([
                 np.repeat(normed_conditions, n_samples, axis=0),
                 normed_observations
             ], axis=1)
+            # [ n_samples x (horizon + 1) x action_dim ]
+            normed_actions = np.concatenate([
+                np.repeat(normed_actions_conditions, n_samples, axis=0),
+                normed_actions
+            ], axis=1)
 
-            ## [ n_samples x (horizon + 1) x observation_dim ]
-            observations = self.dataset.normalizer.unnormalize(normed_observations, 'observations')
+            # [ n_samples x (horizon + 1) x observation_dim ]
+            observations = self.dataset.normalizer.unnormalize(
+                normed_observations, 'observations')
+            # [ n_samples x (horizon + 1) x action_dim ]
+            actions = self.dataset.normalizer.unnormalize(
+                normed_actions, 'actions')
 
             savepath = os.path.join(self.logdir, f'sample-{self.step}-{i}.png')
-            self.renderer.composite(savepath, observations)
+
+            # if the environment is Adroit
+            if self.adroit:
+                self.renderer.composite(
+                    savepath, observations, actions=actions)
+            else:
+                self.renderer.composite(savepath, observations)

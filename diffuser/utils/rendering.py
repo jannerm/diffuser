@@ -14,9 +14,10 @@ from .video import save_video, save_videos
 
 from diffuser.datasets.d4rl import load_environment
 
-#-----------------------------------------------------------------------------#
-#------------------------------- helper structs ------------------------------#
-#-----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# ------------------------------- helper structs ------------------------------#
+# -----------------------------------------------------------------------------#
+
 
 def env_map(env_name):
     '''
@@ -32,23 +33,26 @@ def env_map(env_name):
     else:
         return env_name
 
-#-----------------------------------------------------------------------------#
-#------------------------------ helper functions -----------------------------#
-#-----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# ------------------------------ helper functions -----------------------------#
+# -----------------------------------------------------------------------------#
+
 
 def get_image_mask(img):
     background = (img == 255).all(axis=-1, keepdims=True)
     mask = ~background.repeat(3, axis=-1)
     return mask
 
+
 def atmost_2d(x):
     while x.ndim > 2:
         x = x.squeeze(0)
     return x
 
-#-----------------------------------------------------------------------------#
-#---------------------------------- renderers --------------------------------#
-#-----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# ---------------------------------- renderers --------------------------------#
+# -----------------------------------------------------------------------------#
+
 
 class MuJoCoRenderer:
     '''
@@ -61,13 +65,14 @@ class MuJoCoRenderer:
             self.env = gym.make(env)
         else:
             self.env = env
-        ## - 1 because the envs in renderer are fully-observed
+        # - 1 because the envs in renderer are fully-observed
         self.observation_dim = np.prod(self.env.observation_space.shape) - 1
         self.action_dim = np.prod(self.env.action_space.shape)
         try:
             self.viewer = mjc.MjRenderContextOffscreen(self.env.sim)
         except:
-            print('[ utils/rendering ] Warning: could not initialize offscreen renderer')
+            print(
+                '[ utils/rendering ] Warning: could not initialize offscreen renderer')
             self.viewer = None
 
     def pad_observation(self, observation):
@@ -84,12 +89,23 @@ class MuJoCoRenderer:
         xvel = observations[:, xvel_dim]
         xpos = np.cumsum(xvel) * self.env.dt
         states = np.concatenate([
-            xpos[:,None],
+            xpos[:, None],
             observations,
         ], axis=-1)
         return states
 
-    def render(self, observation, dim=256, partial=False, qvel=True, render_kwargs=None, conditions=None):
+    def pad_observations_hand(self, observations):
+        qpos_dim = self.env.sim.data.qpos.size
+        qvel_dim = self.env.sim.data.qvel.size
+        qpos_pred = observations[..., :30]
+        pads = np.zeros(
+            (qpos_pred.shape[0], qpos_pred.shape[1], qpos_dim + qvel_dim - qpos_pred.shape[2]))
+        states = np.concatenate([qpos_pred, pads], axis=-1)
+        states_dict = {'qpos': states[..., :qpos_dim],
+                       'qvel': states[..., qpos_dim:]}
+        return states_dict
+
+    def render(self, observation, dim=256, partial=False, qvel=True, render_kwargs=None, conditions=None, qpos=None, qvel_value=None, states_dict=None, actions=None):
 
         if type(dim) == int:
             dim = (dim, dim)
@@ -122,16 +138,32 @@ class MuJoCoRenderer:
             qvel_dim = self.env.sim.data.qvel.size
             state = np.concatenate([state, np.zeros(qvel_dim)])
 
-        set_state(self.env, state)
+        if qpos is not None and qvel_value is not None:
+            self.env.set_state(qpos, qvel_value)
+        elif actions is not None:
+            self.env.reset()
+            self.env.step(actions)
+            self.env.set_env_state(self.env.get_env_state())
+        else:
+            set_state(self.env, state)
 
-        self.viewer.render(*dim)
+        self.viewer.render(*dim, camera_id=1)
         data = self.viewer.read_pixels(*dim, depth=False)
         data = data[::-1, :, :]
         return data
 
     def _renders(self, observations, **kwargs):
         images = []
-        for observation in observations:
+        qpos = kwargs.get('qpos', None)
+        qvel_values = kwargs.get('qvel_value', None)
+        actions = kwargs.get('actions', None)
+        for i, observation in enumerate(observations):
+            if qpos is not None and qvel_values is not None:
+                kwargs['qpos'] = qpos[i]
+                kwargs['qvel_value'] = qvel_values[i]
+            elif actions is not None:
+                kwargs['actions'] = actions[i]
+
             img = self.render(observation, **kwargs)
             images.append(img)
         return np.stack(images, axis=0)
@@ -157,13 +189,23 @@ class MuJoCoRenderer:
             'trackbodyid': 2,
             'distance': 10,
             'lookat': [5, 2, 0.5],
-            'elevation': 0
+            'elevation': 0,
         }
         images = []
-        for path in paths:
-            ## [ H x obs_dim ]
+        qpos = kwargs.get('qpos', None)
+        qvel_values = kwargs.get('qvel_value', None)
+        actions = kwargs.get('actions', None)
+        for i, path in enumerate(paths):
+            # [ H x obs_dim ]
             path = atmost_2d(path)
-            img = self.renders(to_np(path), dim=dim, partial=True, qvel=True, render_kwargs=render_kwargs, **kwargs)
+            if qpos is not None and qvel_values is not None:
+                kwargs['qpos'] = qpos[i]
+                kwargs['qvel_value'] = qvel_values[i]
+            elif actions is not None:
+                kwargs['actions'] = actions[i]
+
+            img = self.renders(to_np(path), dim=dim, partial=True,
+                               qvel=True, render_kwargs=render_kwargs, **kwargs)
             images.append(img)
         images = np.concatenate(images, axis=0)
 
@@ -173,31 +215,46 @@ class MuJoCoRenderer:
 
         return images
 
-    def render_rollout(self, savepath, states, **video_kwargs):
-        if type(states) is list: states = np.array(states)
-        images = self._renders(states, partial=True)
+    def render_rollout(self, savepath, states,rollout_qpos, rollout_qvel, **video_kwargs):
+        if type(states) is list:
+            states = np.array(states)
+        images = self._renders(
+            states, qpos=rollout_qpos, qvel_value=rollout_qvel, partial=True)
         save_video(savepath, images, **video_kwargs)
 
-    def render_plan(self, savepath, actions, observations_pred, state, fps=30):
-        ## [ batch_size x horizon x observation_dim ]
-        observations_real = rollouts_from_state(self.env, state, actions)
+    def render_plan(self, savepath, actions, observations_pred, state, states_pred, adroit, fps=30):
 
-        ## there will be one more state in `observations_real`
-        ## than in `observations_pred` because the last action
-        ## does not have an associated next_state in the sampled trajectory
-        observations_real = observations_real[:,:-1]
+        # [ batch_size x horizon x observation_dim ]
+        if adroit:
+            observations_real, states_real = rollouts_from_state_with_dict(
+                self.env, state, actions)
+            # there will be one more state in `observations_real`
+            # than in `observations_pred` because the last action
+            # does not have an associated next_state in the sampled trajectory
+            observations_real = observations_real[:, :-1]
+            states_real = states_real[:, :-1]
+            qpos_real, qvel_real = states_real[...,
+                                               :self.env.sim.data.qpos.size], states_real[..., self.env.sim.data.qpos.size:]
+        else:
+            observations_real = rollouts_from_state(
+                self.env, state, actions)
+            observations_real = observations_real[:, :-1]
+            qpos_real, qvel_real = np.empty(
+                shape=observations_real.shape[:-1]), np.empty(shape=observations_real.shape[:-1])
 
         images_pred = np.stack([
-            self._renders(obs_pred, partial=True)
-            for obs_pred in observations_pred
+            self._renders(obs_pred, partial=True,
+                          qpos=states_pred['qpos'][i], qvel_value=states_pred['qvel'][i])
+            for i, obs_pred in enumerate(observations_pred)
         ])
 
         images_real = np.stack([
-            self._renders(obs_real, partial=False)
-            for obs_real in observations_real
+            self._renders(obs_real, partial=False,
+                          qpos=qpos_real[i], qvel_value=qvel_real[i])
+            for i, obs_real in enumerate(observations_real)
         ])
 
-        ## [ batch_size x horizon x H x W x C ]
+        # [ batch_size x horizon x H x W x C ]
         images = np.concatenate([images_pred, images_real], axis=-2)
         save_videos(savepath, *images)
 
@@ -220,12 +277,14 @@ class MuJoCoRenderer:
         for t in reversed(range(n_diffusion_steps)):
             print(f'[ utils/renderer ] Diffusion: {t} / {n_diffusion_steps}')
 
-            ## [ batch_size x horizon x observation_dim ]
-            states_l = diffusion_path[t].reshape(batch_size, horizon, joined_dim)[:, :, :self.observation_dim]
+            # [ batch_size x horizon x observation_dim ]
+            states_l = diffusion_path[t].reshape(batch_size, horizon, joined_dim)[
+                :, :, :self.observation_dim]
 
             frame = []
             for states in states_l:
-                img = self.composite(None, states, dim=(1024, 256), partial=True, qvel=True, render_kwargs=render_kwargs)
+                img = self.composite(None, states, dim=(
+                    1024, 256), partial=True, qvel=True, render_kwargs=render_kwargs)
                 frame.append(img)
             frame = np.concatenate(frame, axis=0)
 
@@ -236,9 +295,10 @@ class MuJoCoRenderer:
     def __call__(self, *args, **kwargs):
         return self.renders(*args, **kwargs)
 
-#-----------------------------------------------------------------------------#
-#---------------------------------- rollouts ---------------------------------#
-#-----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# ---------------------------------- rollouts ---------------------------------#
+# -----------------------------------------------------------------------------#
+
 
 def set_state(env, state):
     qpos_dim = env.sim.data.qpos.size
@@ -247,27 +307,62 @@ def set_state(env, state):
         warnings.warn(
             f'[ utils/rendering ] Expected state of size {qpos_dim + qvel_dim}, '
             f'but got state of size {state.size}')
+
         state = state[:qpos_dim + qvel_dim]
 
     env.set_state(state[:qpos_dim], state[qpos_dim:])
 
+
+def rollouts_from_state_with_dict(env, state, actions_l):
+    rollouts = []
+    rollouts_states = []
+    for actions in actions_l:
+        obs, states = rollout_from_state_with_dict(env, state, actions)
+        rollouts.append(obs)
+        rollouts_states.append(states)
+    return np.stack(rollouts), np.stack(rollouts_states)
+
+
 def rollouts_from_state(env, state, actions_l):
-    rollouts = np.stack([
-        rollout_from_state(env, state, actions)
-        for actions in actions_l
-    ])
-    return rollouts
+    rollouts = []
+    for actions in actions_l:
+        obs = rollout_from_state(env, state, actions)
+        rollouts.append(obs)
+    return np.stack(rollouts)
+
+
+def rollout_from_state_with_dict(env, state, actions):
+    qpos_dim = env.sim.data.qpos.size
+    env.set_state(state[:qpos_dim], state[qpos_dim:])
+    get_obs_method = getattr(env, '_get_obs', env.get_obs)
+    observations = [get_obs_method()]
+    states = [state]
+    env.reset()
+    for act in actions:
+        obs, rew, term, _ = env.step(act)
+        observations.append(obs)
+        st = env.get_env_state()
+        states.append(np.concatenate([st['qpos'], st['qvel']]))
+        if term:
+            break
+    for i in range(len(observations), len(actions)+1):
+        # if terminated early, pad with zeros
+        observations.append(np.zeros(obs.size))
+    return np.stack(observations), np.stack(states)
+
 
 def rollout_from_state(env, state, actions):
     qpos_dim = env.sim.data.qpos.size
     env.set_state(state[:qpos_dim], state[qpos_dim:])
-    observations = [env._get_obs()]
+    get_obs_method = getattr(env, '_get_obs', env.get_obs)
+    observations = [get_obs_method()]
+    env.reset()
     for act in actions:
         obs, rew, term, _ = env.step(act)
         observations.append(obs)
         if term:
             break
     for i in range(len(observations), len(actions)+1):
-        ## if terminated early, pad with zeros
-        observations.append( np.zeros(obs.size) )
+        # if terminated early, pad with zeros
+        observations.append(np.zeros(obs.size))
     return np.stack(observations)

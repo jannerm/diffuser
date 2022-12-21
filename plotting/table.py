@@ -110,7 +110,6 @@ def format_algorithms(algorithms):
 
 def format_averages(means):
 	prefix = f'\\multicolumn{{2}}{{c}}{{\\bf Average}} & '
-	# highlights = HIGHLIGHTS['Average']
 	highlights = set_highlights(means)
 	formatted = ' & '.join(maybe_highlight(str(mean), h) for mean, h in zip(means, highlights))
 	return prefix + formatted

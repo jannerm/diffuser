@@ -37,7 +37,7 @@ Download pretrained diffusion models and value functions with:
 ./scripts/download_pretrained.sh
 ```
 
-This command downloads and extracts a [tarfile](https://drive.google.com/file/d/1srTq0OFQtWIv9A7fwm3fwh1StA__qr6y/view?usp=sharing) containing [this directory](https://drive.google.com/drive/folders/1ie6z3toz9OjcarJuwjQwXXzDwh1XnS02?usp=sharing) to `logs/pretrained`. The models are organized according to the following structure:
+This command downloads and extracts a [tarfile](https://drive.google.com/file/d/1wc1m4HLj7btaYDN8ogDIAV9QzgWEckGy/view?usp=share_link) containing [this directory](https://drive.google.com/drive/folders/1ie6z3toz9OjcarJuwjQwXXzDwh1XnS02?usp=sharing) to `logs/pretrained`. The models are organized according to the following structure:
 ```
 └── logs/pretrained
     ├── ${environment_1}
@@ -46,16 +46,92 @@ This command downloads and extracts a [tarfile](https://drive.google.com/file/d/
     │   │       ├── state_${epoch}.pt
     │   │       ├── sample-${epoch}-*.png
     │   │       └── {dataset, diffusion, model, render, trainer}_config.pkl
-    │   └── values
-    │       └── ${experiment_name}
-    │           ├── state_${epoch}.pt
-    │           └── {dataset, diffusion, model, render, trainer}_config.pkl
+    │   ├── values
+    │   │   └── ${experiment_name}
+    │   │       ├── state_${epoch}.pt
+    │   │       └── {dataset, diffusion, model, render, trainer}_config.pkl
+    │   └── plans
+    │       └── defaults
+    │           ├── 0
+    │           ├── 1
+    │           ├── ...
+    │           └── 149
+    │
     ├── ${environment_2}
     │   └── ...
 ```
 
 The `state_${epoch}.pt` files contain the network weights and the `config.pkl` files contain the instantation arguments for the relevant classes.
 The png files contain samples from different points during training of the diffusion model.
+Within the `plans` subfolders, there are the results of 150 evaluation trials for each environment using the default hyperparameters.
+
+<details>
+<summary>To aggregate the results of the evaluations in the <code>logs</code> folder, run <code>python scripts/read_results.py</code>. (Expand to view the output of this command on the plans downloaded from Google Drive.)
+</summary>
+
+```
+hopper-medium-replay-v2        | defaults   | logs/pretrained/hopper-medium-replay-v2/plans      | 150 scores
+    93.6 +/- 0.37
+hopper-medium-v2               | defaults   | logs/pretrained/hopper-medium-v2/plans             | 150 scores
+    74.3 +/- 1.36
+hopper-medium-expert-v2        | defaults   | logs/pretrained/hopper-medium-expert-v2/plans      | 150 scores
+    103.3 +/- 1.30
+walker2d-medium-replay-v2      | defaults   | logs/pretrained/walker2d-medium-replay-v2/plans    | 150 scores
+    70.6 +/- 1.60
+walker2d-medium-v2             | defaults   | logs/pretrained/walker2d-medium-v2/plans           | 150 scores
+    79.6 +/- 0.55
+walker2d-medium-expert-v2      | defaults   | logs/pretrained/walker2d-medium-expert-v2/plans    | 150 scores
+    106.9 +/- 0.24
+halfcheetah-medium-replay-v2   | defaults   | logs/pretrained/halfcheetah-medium-replay-v2/plans | 150 scores
+    37.7 +/- 0.45
+halfcheetah-medium-v2          | defaults   | logs/pretrained/halfcheetah-medium-v2/plans        | 150 scores
+    42.8 +/- 0.32
+halfcheetah-medium-expert-v2   | defaults   | logs/pretrained/halfcheetah-medium-expert-v2/plans | 150 scores
+    88.9 +/- 0.25
+```
+</details>
+
+<details>
+<summary>To create the table of offline RL results from the paper, run <code>python plotting/table.py</code>. This will print a table that can be copied into a Latex document. (Expand to view table source.)</summary>
+
+```
+\definecolor{tblue}{HTML}{1F77B4}
+\definecolor{tred}{HTML}{FF6961}
+\definecolor{tgreen}{HTML}{429E9D}
+\definecolor{thighlight}{HTML}{000000}
+\newcolumntype{P}{>{\raggedleft\arraybackslash}X}
+\begin{table*}[hb!]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llPPPPPPPPr}
+\toprule
+\multicolumn{1}{r}{\bf \color{black} Dataset} & \multicolumn{1}{r}{\bf \color{black} Environment} & \multicolumn{1}{r}{\bf \color{black} BC} & \multicolumn{1}{r}{\bf \color{black} CQL} & \multicolumn{1}{r}{\bf \color{black} IQL} & \multicolumn{1}{r}{\bf \color{black} DT} & \multicolumn{1}{r}{\bf \color{black} TT} & \multicolumn{1}{r}{\bf \color{black} MOPO} & \multicolumn{1}{r}{\bf \color{black} MOReL} & \multicolumn{1}{r}{\bf \color{black} MBOP} & \multicolumn{1}{r}{\bf \color{black} Diffuser} \\ 
+\midrule
+Medium-Expert & HalfCheetah & $55.2$ & $91.6$ & $86.7$ & $86.8$ & $95.0$ & $63.3$ & $53.3$ & $\textbf{\color{thighlight}105.9}$ & $88.9$ \scriptsize{\raisebox{1pt}{$\pm 0.3$}} \\ 
+Medium-Expert & Hopper & $52.5$ & $\textbf{\color{thighlight}105.4}$ & $91.5$ & $\textbf{\color{thighlight}107.6}$ & $\textbf{\color{thighlight}110.0}$ & $23.7$ & $\textbf{\color{thighlight}108.7}$ & $55.1$ & $103.3$ \scriptsize{\raisebox{1pt}{$\pm 1.3$}} \\ 
+Medium-Expert & Walker2d & $\textbf{\color{thighlight}107.5}$ & $\textbf{\color{thighlight}108.8}$ & $\textbf{\color{thighlight}109.6}$ & $\textbf{\color{thighlight}108.1}$ & $101.9$ & $44.6$ & $95.6$ & $70.2$ & $\textbf{\color{thighlight}106.9}$ \scriptsize{\raisebox{1pt}{$\pm 0.2$}} \\ 
+\midrule
+Medium & HalfCheetah & $42.6$ & $44.0$ & $\textbf{\color{thighlight}47.4}$ & $42.6$ & $\textbf{\color{thighlight}46.9}$ & $42.3$ & $42.1$ & $44.6$ & $42.8$ \scriptsize{\raisebox{1pt}{$\pm 0.3$}} \\ 
+Medium & Hopper & $52.9$ & $58.5$ & $66.3$ & $67.6$ & $61.1$ & $28.0$ & $\textbf{\color{thighlight}95.4}$ & $48.8$ & $74.3$ \scriptsize{\raisebox{1pt}{$\pm 1.4$}} \\ 
+Medium & Walker2d & $75.3$ & $72.5$ & $\textbf{\color{thighlight}78.3}$ & $74.0$ & $\textbf{\color{thighlight}79.0}$ & $17.8$ & $\textbf{\color{thighlight}77.8}$ & $41.0$ & $\textbf{\color{thighlight}79.6}$ \scriptsize{\raisebox{1pt}{$\pm 0.55$}} \\ 
+\midrule
+Medium-Replay & HalfCheetah & $36.6$ & $45.5$ & $44.2$ & $36.6$ & $41.9$ & $\textbf{\color{thighlight}53.1}$ & $40.2$ & $42.3$ & $37.7$ \scriptsize{\raisebox{1pt}{$\pm 0.5$}} \\ 
+Medium-Replay & Hopper & $18.1$ & $\textbf{\color{thighlight}95.0}$ & $\textbf{\color{thighlight}94.7}$ & $82.7$ & $\textbf{\color{thighlight}91.5}$ & $67.5$ & $\textbf{\color{thighlight}93.6}$ & $12.4$ & $\textbf{\color{thighlight}93.6}$ \scriptsize{\raisebox{1pt}{$\pm 0.4$}} \\ 
+Medium-Replay & Walker2d & $26.0$ & $77.2$ & $73.9$ & $66.6$ & $\textbf{\color{thighlight}82.6}$ & $39.0$ & $49.8$ & $9.7$ & $70.6$ \scriptsize{\raisebox{1pt}{$\pm 1.6$}} \\ 
+\midrule
+\multicolumn{2}{c}{\bf Average} & 51.9 & \textbf{\color{thighlight}77.6} & \textbf{\color{thighlight}77.0} & 74.7 & \textbf{\color{thighlight}78.9} & 42.1 & 72.9 & 47.8 & \textbf{\color{thighlight}77.5} \hspace{.6cm} \\ 
+\bottomrule
+\end{tabularx}
+\vspace{-.0cm}
+\caption{
+}
+\label{table:locomotion}
+\end{table*}
+
+```
+
+![](https://github.com/diffusion-planning/diffusion-planning.github.io/blob/master/images/table.png)
+</details>
 
 ### Planning
 
@@ -67,10 +143,6 @@ python scripts/plan_guided.py --dataset halfcheetah-medium-expert-v2 --logbase l
 The `--logbase` flag points the [experiment loaders](scripts/plan_guided.py#L22-L30) to the folder containing the pretrained models.
 You can override planning hyperparameters with flags, such as `--batch_size 8`, but the default
 hyperparameters are a good starting point.
-
-**Results.** The current codebase performs a few points better (averaged over environments) than
-described in the arxiv v1 paper due to small tweaks to the architecture and objective. It is also
-somewhat faster. The arxiv paper will be updated shortly to reflect these changes.
 
 ## Training from scratch
 

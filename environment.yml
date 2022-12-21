@@ -32,4 +32,4 @@ dependencies:
     - google-api-python-client
     - cryptography
     - git+https://github.com/JannerM/doodad.git@janner
-    - gdown
+    - gdown>=4.6.0

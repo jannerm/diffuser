@@ -7,7 +7,7 @@ import pybullet as p
 import gym
 import d4rl
 
-from denoising_diffusion_pytorch import GaussianDiffusion
+from diffusion.denoising_diffusion_pytorch import GaussianDiffusion
 from denoising_diffusion_pytorch import Trainer
 from denoising_diffusion_pytorch.datasets.tamp import KukaDataset
 from denoising_diffusion_pytorch.mixer import MixerUnet

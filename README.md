@@ -27,7 +27,7 @@ or conditional stacking with
 python scripts/conditional_kuka_planning_eval.py
 ```
 
-Samples and model checkpoints will be logged to `./results` periodically
+The rewards are not normalized -- you need to divide numbers by 3.0 to get numbers reported in the paper.
 
 ## Citations
 

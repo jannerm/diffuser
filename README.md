@@ -12,7 +12,7 @@ The [maze2d branch](https://github.com/jannerm/diffuser/tree/maze2d) contains go
 </p>
 
 **Updates**
-- 12/09/2022: Diffuser (the RL model) has been integrated into 🤗 Diffusers (the Hugging Face diffusion model library)! See [these docs](https://huggingface.co/docs/diffusers/using-diffusers/rl) for how to run Diffuser using their pipeline.
+- 12/09/2022: Diffuser (the RL model) has been integrated into 🤗 Diffusers (the Hugging Face diffusion model library)! See [these docs](https://huggingface.co/docs/diffusers/main/en/api/pipelines/value_guided_sampling) for how to run Diffuser using their pipeline.
 - 10/17/2022: A bug in the value function scaling has been fixed in [this commit](https://github.com/jannerm/diffuser/commit/3d7361c2d028473b601cc04f5eecd019e14eb4eb). Thanks to [Philemon Brakel](https://scholar.google.com/citations?user=Q6UMpRYAAAAJ&hl=en) for catching it!
 
 ## Quickstart

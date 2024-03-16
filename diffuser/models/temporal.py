@@ -183,8 +183,8 @@ class ValueFunction(nn.Module):
                 Downsample1d(dim_out)
             ]))
 
-            if not is_last:
-                horizon = horizon // 2
+            # if not is_last:
+            horizon = horizon // 2
 
         mid_dim = dims[-1]
         mid_dim_2 = mid_dim // 2

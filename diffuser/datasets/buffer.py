@@ -9,7 +9,7 @@ class ReplayBuffer:
 
     def __init__(self, max_n_episodes, max_path_length, termination_penalty):
         self._dict = {
-            'path_lengths': np.zeros(max_n_episodes, dtype=np.int),
+            'path_lengths': np.zeros(max_n_episodes, dtype=int),
         }
         self._count = 0
         self.max_n_episodes = max_n_episodes

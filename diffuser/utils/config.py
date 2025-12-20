@@ -1,5 +1,5 @@
 import os
-import collections
+import collections.abc
 import importlib
 import pickle
 
@@ -18,7 +18,7 @@ def import_class(_class):
     print(f'[ utils/config ] Imported {repo_name}.{module_name}:{class_name}')
     return _class
 
-class Config(collections.Mapping):
+class Config(collections.abc.Mapping):
 
     def __init__(self, _class, verbose=True, savepath=None, device=None, **kwargs):
         self._class = import_class(_class)
